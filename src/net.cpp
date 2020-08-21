@@ -180,14 +180,10 @@ bool RecvLine(SOCKET hSocket, string& strLine)
                 return true;
         } else if (nBytes <= 0) {
             boost::this_thread::interruption_point();
-            if (nBytes < 0) {
-                int nErr = WSAGetLastError();
-                if (nErr == WSAEMSGSIZE)
-                    continue;
-                if (nErr == WSAEWOULDBLOCK || nErr == WSAEINTR || nErr == WSAEINPROGRESS) {
-                    MilliSleep(10);
-                    continue;
-                }
+            if (nBytes == 0) {
+                // couldn't send anything at all
+                LogPrintf("socket send error: data failure\n");
+                return false;
             }
             if (!strLine.empty())
                 return true;
@@ -680,15 +676,13 @@ void SocketSendData(CNode* pnode)
                 break;
             }
         } else {
-            if (nBytes < 0) {
-                // error
-                int nErr = WSAGetLastError();
-                if (nErr != WSAEWOULDBLOCK && nErr != WSAEMSGSIZE && nErr != WSAEINTR && nErr != WSAEINPROGRESS) {
-                    LogPrintf("socket send error %s\n", NetworkErrorString(nErr));
-                    pnode->CloseSocketDisconnect();
-                }
+            if (nBytes == 0) {
+                // couldn't send anything at all
+                LogPrintf("socket send error: data failure\n");
+                pnode->CloseSocketDisconnect();
+                break;
             }
-            // couldn't send anything at all
+            pnode->CloseSocketDisconnect();
             break;
         }
     }
@@ -925,14 +919,11 @@ void ThreadSocketHandler()
                             if (!pnode->fDisconnect)
                                 LogPrint("net", "socket closed\n");
                             pnode->CloseSocketDisconnect();
-                        } else if (nBytes < 0) {
-                            // error
-                            int nErr = WSAGetLastError();
-                            if (nErr != WSAEWOULDBLOCK && nErr != WSAEMSGSIZE && nErr != WSAEINTR && nErr != WSAEINPROGRESS) {
-                                if (!pnode->fDisconnect)
-                                    LogPrintf("socket recv error %s\n", NetworkErrorString(nErr));
-                                pnode->CloseSocketDisconnect();
-                            }
+                        } else if (nBytes == 0) {
+                            // couldn't send anything at all
+                            LogPrintf("socket send error: data failure\n");
+                            pnode->CloseSocketDisconnect();
+                            continue;
                         }
                     }
                 }
