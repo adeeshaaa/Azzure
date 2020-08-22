@@ -312,7 +312,7 @@ then
 	    echo "Compiling ${VERSION} AArch64"
 	    echo ""
 	    ./bin/gbuild -j ${proc} -m ${mem} --commit Azzure=${COMMIT} --url Azzure=${url} ../Azzure/contrib/gitian-descriptors/gitian-aarch64.yml
-	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-linux --destination ../gitian.sigs/ ../Azzure/contrib/gitian-descriptors/gitian-aarch64.yml
+	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-aarch64 --destination ../gitian.sigs/ ../Azzure/contrib/gitian-descriptors/gitian-aarch64.yml
 	    mv build/out/Azzure-*.tar.gz build/out/src/Azzure-*.tar.gz ../Azzure-binaries/${VERSION}
 	fi
 	popd
@@ -356,7 +356,7 @@ then
 	echo ""
 	echo "Verifying v${VERSION} AArch64"
 	echo ""
-	./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-linux ../Azzure/contrib/gitian-descriptors/gitian-aarch64.yml
+	./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-aarch64 ../Azzure/contrib/gitian-descriptors/gitian-aarch64.yml
 	# Signed Windows
 	echo ""
 	echo "Verifying v${VERSION} Signed Windows"

@@ -110,6 +110,8 @@ public slots:
     void unlockWallet();
     /** Lock wallet */
     void lockWallet();
+    /** Toggle wallet lock state */
+    void toggleLockWallet();
 
     /** Show used sending addresses */
     void usedSendingAddresses();

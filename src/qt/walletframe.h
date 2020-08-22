@@ -82,6 +82,8 @@ public slots:
     void unlockWallet();
     /** Lock wallet */
     void lockWallet();
+    /** Toggle Wallet Lock State */
+    void toggleLockWallet();
 
     /** Show used sending addresses */
     void usedSendingAddresses();
