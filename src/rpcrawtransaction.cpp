@@ -101,6 +101,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
             if (chainActive.Contains(pindex)) {
                 entry.push_back(Pair("confirmations", 1 + chainActive.Height() - pindex->nHeight));
                 entry.push_back(Pair("blocktime", pindex->GetBlockTime()));
+                entry.push_back(Pair("time", pindex->GetBlockTime()));
             } else
                 entry.push_back(Pair("confirmations", 0));
         }
