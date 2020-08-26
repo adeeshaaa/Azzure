@@ -3676,8 +3676,8 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
         }
 
         // Let's check if the inputs were spent on the main chain
-        const CCoinsViewCache coins(pcoinsTip)
-        for (CTxIn in: stakeTxIn.vin) {
+        const CCoinsViewCache coins(pcoinsTip);
+        for (const CTxIn& in: stakeTxIn.vin) {
             const CCoins* coin = coins.AccessCoins(in.prevout.hash);
 
             if(!coin && !isBlockFromFork){
