@@ -3565,7 +3565,7 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
         isPoS = true;
         uint256 hashProofOfStake = 0;
 
-        if (!CheckProofOfStake(block, hashProofOfStake, stake))
+        if (!CheckProofOfStake(block, hashProofOfStake))
             return state.DoS(100, error("AcceptBlock() %s: proof of stake check failed", __func__));
 
         uint256 hash = block.GetHash();
@@ -3634,7 +3634,6 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
             CBlockIndex *prev = pindexPrev;
 
             int readBlock = 0;
-            vector<CBigNum> vBlockSerials;
             CBlock bl;
             // Go backwards on the forked chain up to the split
             do {
@@ -3644,9 +3643,10 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
                     return error("%s: forked chain longer than maximum reorg limit", __func__);
                 }
 
-                if(!ReadBlockFromDisk(bl, prev))
+                if(!ReadBlockFromDisk(bl, prev)) {
                     // Previous block not on disk
                     return error("%s: previous block %s not on disk", __func__, prev->GetBlockHash().GetHex());
+                }
                 // Increase amount of read blocks
                 readBlock++;
                 // Loop through every input from said block
@@ -3677,7 +3677,7 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
 
         // Let's check if the inputs were spent on the main chain
         const CCoinsViewCache coins(pcoinsTip)
-        for (const CTxIn& in: stakeTxIn.vin) {
+        for (CTxIn in: stakeTxIn.vin) {
             const CCoins* coin = coins.AccessCoins(in.prevout.hash);
 
             if(!coin && !isBlockFromFork){
