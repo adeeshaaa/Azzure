@@ -50,7 +50,6 @@ install:
 
 before_script:
     - unset CC; unset CXX
-    - apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-upgrade -qq $PACKAGES $BASE_PACKAGES
     - echo \> \$HOME/.Azzure
     - mkdir -p depends/SDKs depends/sdk-sources
