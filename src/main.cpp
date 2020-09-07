@@ -3229,11 +3229,9 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
 
     // Check that the header is valid (particularly PoW).  This is mostly
     // redundant with the call in AcceptBlockHeader.
-    if (!block.IsProofOfStake()) {
-        if (!CheckBlockHeader(block, state, block.IsProofOfWork()))
-            return state.DoS(100, error("CheckBlock() : CheckBlockHeader failed"),
-                REJECT_INVALID, "bad-header", true);
-    }
+    if (!CheckBlockHeader(block, state, block.IsProofOfWork()))
+        return state.DoS(100, error("CheckBlock() : CheckBlockHeader failed"),
+            REJECT_INVALID, "bad-header", true);
 
     // Check timestamp
     LogPrint("debug", "%s: block=%s  is proof of stake=%d\n", __func__, block.GetHash().ToString().c_str(), block.IsProofOfStake());
