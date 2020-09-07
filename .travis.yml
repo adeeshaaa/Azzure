@@ -44,7 +44,6 @@ before_install:
     - chmod 755 configure.ac
     - chmod 755 share/genbuild.sh
     - chmod 755 depends
-    - chmod 755 config
     - chmod 755 hosts
     - chmod 755 builders
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
