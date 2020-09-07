@@ -97,7 +97,7 @@ public:
         pchMessageStart[2] = 0x01;
         pchMessageStart[3] = 0xd6;
         vAlertPubKey = ParseHex("0438d21f5d5e1677c2805e2b623faf4c530214efeaafec04802aafe1895936a12741794eeb06d964196ab84bac40b7885b7b2c1b5824fb157591a84b13835d23ad");
-        nDefaultPort = 93452;
+        nDefaultPort = 11115;
         bnProofOfWorkLimit = ~uint256(0) >> 20; // Azzure starting difficulty is 1 / 2^12
         nSubsidyHalvingInterval = 9999999;
         nMaxReorganizationDepth = 100;
@@ -154,7 +154,7 @@ public:
         fHeadersFirstSyncingActive = false;
 
         nPoolMaxTransactions = 3;
-        strSporkKey = "04bd8d3e45f1gofuckyourself356d3a5f43e1dfaf061e2152bbb68279741ab7197b4e74a81bea32ccd5f3b3f414a0cfa34a9c8ec747709897bb1fb8aea51fdcc0";
+        strSporkKey = "04bd8d3e45f1c7fc1d34ce4c27356d3a5f43e1dfaf061e2152bbb68279741ab7197b4e74a81bea32ccd5f3b3f414a0cfa34a9c8ec747709897bb1fb8aea51fdcc0";
         strObfuscationPoolDummyAddress = "NQTuqzbn3aVbfQvFEFAHJFHoNB68JsVjr7";
         nStartMasternodePayments = 1578497190;
 
