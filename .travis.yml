@@ -46,10 +46,12 @@ before_install:
     - chmod 755 depends
     - chmod 755 /home/travis/build/CryptoCoderz/Azzure
     - chmod 755 src
-    - chmod 755 leveldb
+    - chmod 755 src/leveldb
     - chmod 755 src/obj
     - chmod 755 src/leveldb/build_detect_platform;
     - chmod 755 src/secp256k1
+    - chmod 755 depends/config.sub
+    - chmod 755 depends/config.guess
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
 
 install:
