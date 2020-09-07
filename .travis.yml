@@ -50,7 +50,6 @@ install:
 
 before_script:
     - unset CC; unset CXX
-    - DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-upgrade -qq $PACKAGES $BASE_PACKAGES
     - echo \> \$HOME/.Azzure
     - mkdir -p depends/SDKs depends/sdk-sources
     - if [ -n $OSX_SDK -a ! -f depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz ]; then curl --location --fail $SDK_URL/MacOSX${OSX_SDK}.sdk.tar.gz -o depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz; fi
