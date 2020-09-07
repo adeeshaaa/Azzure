@@ -1,71 +1,55 @@
-image: ubuntu:16.04
+sudo: required
+dist: trusty
 
-stages:
-  - build
-#  - test
-#  - deploy
+addons:
+  hostname: azzure-travis
 
-.env: &env
-  MAKEJOBS: -j3
-  TEST_ZMQ: 0
-  BOOST_TEST_RANDOM: 1$CI_CONCURRENT_ID
-  CCACHE_SIZE: 100M
-  CCACHE_TEMPDIR: /tmp/.ccache-temp
-  CCACHE_COMPRESS: 1
-  CCACHE_DIR: $HOME/.ccache
-  DEP_OPTS: NO_USB=1
-  RUN_UNIT_TESTS: "false"
-  RUN_FUNCTIONAL_TESTS: "false"
-  SDK_URL: https://bitcoincore.org/depends-sources/sdks
-  BASE_PACKAGES: build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git ca-certificates ccache python3-zmq
-  BUILDDIR: $CI_PROJECT_DIR/$CI_JOB_NAME
-  BINDIR: $CI_PROJECT_DIR/$CI_JOB_NAME/bin
-  BITCOIN_CONFIG_ALL: --disable-dependency-tracking --prefix=$CI_PROJECT_DIR/depends/$HOST --bindir=$CI_PROJECT_DIR/$CI_JOB_NAME/bin --libdir=$CI_PROJECT_DIR/$CI_JOB_NAME/lib
+os: linux
+language: generic
 
 cache:
-  key: $CI_JOB_NAME
-  paths:
+  directories:
     - depends/built
     - depends/sdk-sources
     - $HOME/.ccache
 
-.setup-arm-linux: &setup-arm-linux
-  variables:
-    <<: *env
-    HOST: arm-linux-gnueabihf
-    PACKAGES: python3 g++-arm-linux-gnueabihf
-    GOAL: install
-    # -Wno-psabi is to disable ABI warnings: "note: parameter passing for argument of type ... changed in GCC 7.1"
-    # This could be removed once the ABI change warning does not show up by default
-    BITCOIN_CONFIG: --enable-glibc-back-compat --with-gui=qt5 --enable-reduce-exports CXXFLAGS=-Wno-psabi --disable-bench --disable-tests
+env:
+  global:
+  - MAKEJOBS=-j3
+  - CHECK_DOC=0
+  - TEST_ZMQ=0
+  - BOOST_TEST_RANDOM=1$TRAVIS_BUILD_ID
+  - CCACHE_SIZE=100M
+  - CCACHE_TEMPDIR=/tmp/.ccache-temp
+  - CCACHE_COMPRESS=1
+  - CCACHE_DIR=$HOME/.ccache
+  - DEP_OPTS=NO_USB=1
+  - RUN_TESTS="false"
+  - SDK_URL=https://bitcoincore.org/depends-sources/sdks
+  - BASE_PACKAGES=build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git ca-certificates ccache python3-zmq
+  - BASE_OUTDIR=$TRAVIS_BUILD_DIR/out
+  - BINDIR=$TRAVIS_PROJECT_DIR/$TRAVIS_JOB_NAME/bin
+  - BITCOIN_CONFIG_ALL=--disable-dependency-tracking --prefix=$TRAVIS_PROJECT_DIR/depends/$HOST --bindir=$TRAVIS_PROJECT_DIR/$TRAVIS_JOB_NAME/bin --libdir=$TRAVIS_PROJECT_DIR/$TRAVIS_JOB_NAME/lib
 
-.setup-linux: &setup-linux
-  variables:
-    <<: *env
-    HOST: x86_64-unknown-linux-gnu
-    GOAL: install
-    BITCOIN_CONFIG: --enable-glibc-back-compat --with-gui=qt5 --enable-reduce-exports --disable-bench --disable-tests
+matrix:
+  # Win32
+    - HOST=i686-w64-mingw32 DPKG_ADD_ARCH="i386" DEP_OPTS="NO_QT=0" PACKAGES="python3 nsis g++-mingw-w64-i686 wine1.6 bc" RUN_TESTS=false GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests"
+  # Win64
+    - HOST=x86_64-w64-mingw32 DPKG_ADD_ARCH="i386" DEP_OPTS="NO_QT=0" PACKAGES="python3 nsis g++-mingw-w64-x86-64 wine1.6 bc" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests"
+  # azzured
+    - HOST=x86_64-unknown-linux-gnu PACKAGES="bc python3-zmq" DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--enable-zmq --enable-glibc-back-compat --enable-reduce-exports CPPFLAGS=-DDEBUG_LOCKORDER" PYZMQ=true
 
-.setup-macos: &setup-macos
-  variables:
-    <<: *env
-    HOST: x86_64-apple-darwin14
-    OSX_SDK: "10.11"
-    PACKAGES: librsvg2-bin libtiff-tools bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python3-setuptools libtinfo5
-    GOAL: deploy
-    BITCOIN_CONFIG: --enable-gui --enable-reduce-exports --enable-werror --disable-bench --disable-tests
+before_install:
+    - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
+install:
+    - if [ "$PYZMQ" = "true" ]; then pip install pyzmq --user ; fi
+    - if [ -n "$PPA" ]; then travis_retry sudo add-apt-repository "$PPA" -y; fi
+    - if [ -n "$DPKG_ADD_ARCH" ]; then sudo dpkg --add-architecture "$DPKG_ADD_ARCH" ; fi
+    - if [ -n "$PACKAGES" ]; then travis_retry sudo apt-get update; fi
+    - if [ -n "$PACKAGES" ]; then travis_retry sudo apt-get install --no-install-recommends --no-upgrade -qq $PACKAGES; fi
 
-.setup-windows: &setup-windows
-  variables:
-    <<: *env
-    HOST: x86_64-w64-mingw32
-    PACKAGES: python3 nsis g++-mingw-w64-x86-64 wine-binfmt wine64
-    GOAL: deploy
-    BITCOIN_CONFIG: --enable-reduce-exports --disable-bench --disable-zmq --disable-tests
-
-.build: &build
-  stage: build
-  before_script:
+before_script:
+    - unset CC; unset CXX
     - apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-upgrade -qq $PACKAGES $BASE_PACKAGES
     - echo \> \$HOME/.Azzure
@@ -74,8 +58,11 @@ cache:
     - if [ -n $OSX_SDK -a -f depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz ]; then tar -C depends/SDKs -xf depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz; fi
     - if [[ $HOST = *-mingw32 ]]; then update-alternatives --set $HOST-g++ $(which $HOST-g++-posix); fi
     - make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
-  script:
-    - cd $CI_PROJECT_DIR
+script:
+    - OUTDIR=$BASE_OUTDIR/$TRAVIS_PULL_REQUEST/$TRAVIS_JOB_NUMBER-$HOST
+    - BITCOIN_CONFIG_ALL="--disable-dependency-tracking --prefix=$TRAVIS_BUILD_DIR/depends/$HOST --bindir=$OUTDIR/bin --libdir=$OUTDIR/lib"
+    - depends/$HOST/native/bin/ccache --max-size=$CCACHE_SIZE
+    - cd $TRAVIS_PROJECT_DIR
     - echo "Depends built sucessfully!"
     - ./autogen.sh
     - mkdir $BUILDDIR
@@ -85,40 +72,7 @@ cache:
     - cd Azzure-$HOST || (echo could not enter distdir Azzure-$HOST; exit 1)
     - ./configure --cache-file=../config.cache $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || ( cat config.log && false)
     - make $MAKEJOBS $GOAL || ( echo Build failure. Verbose build follows. && make $GOAL V=1 ; false )
-    - cd $CI_PROJECT_DIR || (echo could not enter gitlab build dir $CI_PROJECT_DIR; exit 1)
-
-.collect-artifacts: &collect-artifacts
-  when: on_success
-  artifacts:
-    name: $CI_PROJECT_NAME-$CI_JOB_NAME
-    paths:
-      - $BINDIR/*
-      - $BUILDDIR/Azzure-$HOST/*.dmg
-      - $BUILDDIR/Azzure-$HOST/release/*.exe
-      - $BUILDDIR/Azzure-$HOST/*.exe
-
-#ARM-Linux:
-#  <<: *setup-arm-linux
-#  <<: *build
-#  <<: *collect-artifacts
-
-#Ubuntu-16.04:
-#  image: ubuntu:16.04
-#  <<: *setup-linux
-#  <<: *build
-#  <<: *collect-artifacts
-
-#Ubuntu-18.04:
-#  <<: *setup-linux
-#  <<: *build
-#  <<: *collect-artifacts
-
-#macOS-10.11:
-#  <<: *setup-macos
-#  <<: *build
-#  <<: *collect-artifacts
-
-Windows:
-  <<: *setup-windows
-  <<: *build
-  <<: *collect-artifacts
+    - cd $TRAVIS_PROJECT_DIR || (echo could not enter gitlab build dir $TRAVIS_PROJECT_DIR; exit 1)
+after_script:
+    - echo $TRAVIS_COMMIT_RANGE
+    - echo $TRAVIS_COMMIT_LOG
