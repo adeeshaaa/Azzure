@@ -40,10 +40,12 @@ matrix:
     - HOST=x86_64-unknown-linux-gnu PACKAGES="bc python3-zmq" DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--enable-zmq --enable-glibc-back-compat --enable-reduce-exports CPPFLAGS=-DDEBUG_LOCKORDER" PYZMQ=true
 
 before_install:
+    - chmod 755 autogen.sh
+    - chmod 755 configure
+    - chmod 755 share/genbuild.sh
+    - chmod 755 depends
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
-    - chmod +x build.sh
-    - chmod +x configure.ac
-    - chmod +x depends
+
 install:
     - if [ "$PYZMQ" = "true" ]; then pip install pyzmq --user ; fi
     - if [ -n "$PPA" ]; then travis_retry sudo add-apt-repository "$PPA" -y; fi
