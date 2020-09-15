@@ -330,7 +330,25 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
 
         LogPrint("masternode","Masternode payment of %s to %s\n", FormatMoney(masternodePayment).c_str(), address2.ToString().c_str());
     } else {
-      	txNew.vout[0].nValue = blockValue;
+      	if (fProofOfStake && pindexPrev->nHeight >= 154657) {
+            /**For Proof Of Stake vout[0] must be null
+             * Stake reward can be split into many different outputs, so we must
+             * use vout.size() to align with several different cases.
+             * An additional output is appended as the devops payment
+             *
+             * We only do this if no masternode is available to pay!
+             */
+            payee = GetScriptForDestination(CBitcoinAddress("AcKvL1mzgtGaHG33R3bpWEwo5fYSSVM9PF").Get());//mn payment routed to devops
+            unsigned int i = txNew.vout.size();
+            txNew.vout.resize(i + 1);
+            txNew.vout[i].scriptPubKey = payee;
+            txNew.vout[i].nValue = masternodePayment;
+
+            //subtract devops payment from the stake reward
+            txNew.vout[i - 1].nValue -= masternodePayment;
+        } else {//PoW block reward with no payout
+      	    txNew.vout[0].nValue = blockValue;
+        }
     }
 }
 
