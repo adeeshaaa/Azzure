@@ -97,7 +97,7 @@ public:
         pchMessageStart[2] = 0x01;
         pchMessageStart[3] = 0xd6;
         vAlertPubKey = ParseHex("0438d21f5d5e1677c2805e2b623faf4c530214efeaafec04802aafe1895936a12741794eeb06d964196ab84bac40b7885b7b2c1b5824fb157591a84b13835d23ad");
-        nDefaultPort = 93452;
+        nDefaultPort = 11115;
         bnProofOfWorkLimit = ~uint256(0) >> 20; // Azzure starting difficulty is 1 / 2^12
         nSubsidyHalvingInterval = 9999999;
         nMaxReorganizationDepth = 100;

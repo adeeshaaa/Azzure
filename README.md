@@ -1,6 +1,8 @@
 Azzure Core integration/staging repository
 =====================================
 
+[![Build Status](https://travis-ci.com/CryptoCoderz/Azzure.svg?branch=master)](https://travis-ci.com/CryptoCoderz/Azzure)
+
 
 ### Coin Specs
 <table>
