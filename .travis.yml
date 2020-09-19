@@ -14,6 +14,9 @@ cache:
     - depends/sdk-sources
     - $HOME/.ccache
 
+stages:
+  -deploy
+
 env:
   global:
     - MAKEJOBS=-j3
@@ -33,14 +36,16 @@ env:
     - BITCOIN_CONFIG_ALL=--disable-dependency-tracking --prefix=$TRAVIS_PROJECT_DIR/depends/$HOST --bindir=$TRAVIS_PROJECT_DIR/$TRAVIS_JOB_NAME/bin --libdir=$TRAVIS_PROJECT_DIR/$TRAVIS_JOB_NAME/lib
 
   matrix:
-# Win32
-    - HOST=i686-w64-mingw32 DPKG_ADD_ARCH="i386" DEP_OPTS="NO_QT=0" PACKAGES="python3 nsis g++-mingw-w64-i686 wine1.6 bc" RUN_TESTS=false GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests"
-# Win64
-    - HOST=x86_64-w64-mingw32 DPKG_ADD_ARCH="i386" DEP_OPTS="NO_QT=0" PACKAGES="python3 nsis g++-mingw-w64-x86-64 wine1.6 bc" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests"
-# azzured Ubuntu64
-    - HOST=x86_64-pc-linux-gnu PACKAGES="bc python3-zmq" DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests"
-# azzured Non-distro-specific64
-    - HOST=x86_64-unkown-linux-gnu PACKAGES="bc python3-zmq" DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests"
+# Win32 (Daemon only for now)
+    - HOST=i686-w64-mingw32 DPKG_ADD_ARCH="i386" DEP_OPTS="NO_QT=1" PACKAGES="python3 nsis g++-mingw-w64-i686 wine1.6 bc" RUN_TESTS=false GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests --without-gui" #--with-gui=qt5"
+# Win64 (Daemon only for now)
+    - HOST=x86_64-w64-mingw32 DPKG_ADD_ARCH="i386" DEP_OPTS="NO_QT=1" PACKAGES="python3 nsis g++-mingw-w64-x86-64 wine1.6 bc" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests --without-gui" #--with-gui=qt5"
+# Ubuntu64 (Daemon only for now)
+    - HOST=x86_64-pc-linux-gnu PACKAGES="bc python3-zmq" DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests --without-gui" #--with-gui=qt5"
+# Linux-non-distro-specific64 (Daemon only for now)
+    - HOST=x86_64-unkown-linux-gnu PACKAGES="bc python3-zmq" DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests --without-gui" #--with-gui=qt5"
+# Cross-Mac
+    #- HOST=x86_64-apple-darwin11 PACKAGES="cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev" BITCOIN_CONFIG="--enable-reduce-exports" --disable-bench --disable-zmq --disable-tests OSX_SDK=10.11 GOAL="deploy"
 
 before_install:
     - chmod 755 autogen.sh
@@ -62,8 +67,7 @@ install:
     - if [ -n "$DPKG_ADD_ARCH" ]; then sudo dpkg --add-architecture "$DPKG_ADD_ARCH" ; fi
     - if [ -n "$PACKAGES" ]; then travis_retry sudo apt-get update; fi
     - if [ -n "$PACKAGES" ]; then travis_retry sudo apt-get install --no-install-recommends --no-upgrade -qq $PACKAGES; fi
-before_script: #i686-w64
-    #- HOST=x86_64-w64-mingw32 DPKG_ADD_ARCH="i386" DEP_OPTS="NO_QT=0" PACKAGES="python3 nsis g++-mingw-w64-i686 wine1.6 bc" RUN_TESTS=false GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports --disable-bench --disable-zmq --disable-tests"
+before_script:
     - mkdir -p latest-gcc-symlinks
     - ln -s /usr/bin/g++-4.8 latest-gcc-symlinks/g++
     - ln -s /usr/bin/gcc-4.8 latest-gcc-symlinks/gcc
@@ -88,7 +92,18 @@ script:
     - make $MAKEJOBS $GOAL || ( echo "Build failure. Verbose build follows." && make $GOAL V=1 ; false )
     - export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/depends/$HOST/lib
     - if [ "$RUN_TESTS" = "true" ]; then make $MAKEJOBS check VERBOSE=1; fi
-    #- if [ "$RUN_TESTS" = "true" ]; then qa/pull-tester/rpc-tests.py --coverage; fi
 after_script:
     - echo $TRAVIS_COMMIT_RANGE
     - echo $TRAVIS_COMMIT_LOG
+#before_deploy:
+#  - git config --local user.name "CryptoCoderz"
+#  - git config --local user.email "cryptocoderz@gmail.com"
+#  - export FILE=$(ls $TRAVIS_BUILD_DIR/out/Azzure*)
+#deploy:
+#  provider: releases
+#  api_key:
+#    secure: 
+#  file: "${FILE}"
+#  skip_cleanup: true
+#  draft: true
+#  prerelease: true
