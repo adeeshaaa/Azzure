@@ -990,7 +990,11 @@ public:
             const CTxIn vin = CTxIn(hashTx, i);
 
             if (pwallet->IsSpent(hashTx, i) || pwallet->IsLockedCoin(hashTx, i)) continue;
-            if (fMasterNode && vout[i].nValue == Params().MasternodeCollateralLimit() * COIN) continue; // do not count MN-like outputs
+            if (GetTime() < 1615788014) {
+                if (fMasterNode && vout[i].nValue == Params().MasternodeCollateralLimit() * COIN) continue; // do not count MN-like outputs
+            } else {
+                if (fMasterNode && vout[i].nValue == Params().MasternodeCollateralLimit_V2() * COIN) continue;
+            }
 
             const int rounds = pwallet->GetInputObfuscationRounds(vin);
             if (rounds >= -2 && rounds < nObfuscationRounds) {

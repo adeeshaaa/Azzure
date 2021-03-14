@@ -1760,33 +1760,11 @@ int64_t GetBlockValue(int nHeight)
         nSubsidy = 2000 * COIN; // + 20000000
     }   else if (nHeight <= 300000 && nHeight > 100000) {
         nSubsidy = 1500 * COIN;
-    }   else if (nHeight <= 500000 && nHeight > 300000) {
+    }   else if (nHeight <= 425000 && nHeight > 300000) {
         nSubsidy = 1000 * COIN;
-    }   else if (nHeight <= 700000 && nHeight > 500000) {
-        nSubsidy = 500 * COIN;
-    }   else if (nHeight <= 900000 && nHeight > 700000) {
-        nSubsidy = 450 * COIN;
-    }   else if (nHeight <= 1100000 && nHeight > 900000) {
-        nSubsidy = 400 * COIN;
-    }   else if (nHeight <= 1300000 && nHeight > 1100000) {
-        nSubsidy = 350 * COIN;
-    }   else if (nHeight <= 1400000 && nHeight > 1300000) {
-        nSubsidy = 300 * COIN;
-    }   else if (nHeight <= 1600000 && nHeight > 1400000) {
-        nSubsidy = 250 * COIN;
-    }   else if (nHeight <= 1800000 && nHeight > 1600000) {
-        nSubsidy = 200 * COIN;
-    }   else if (nHeight <= 2000000 && nHeight > 1800000) {
-        nSubsidy = 150 * COIN;
-    }   else if (nHeight <= 2500000 && nHeight > 2000000) {
-        nSubsidy = 100 * COIN;
-    }   else if (nHeight <= 5000000 && nHeight > 2500000) {
-        nSubsidy = 50 * COIN;
-    }   else if (nHeight <= 10000000 && nHeight > 5000000) {
-        nSubsidy = 25 * COIN;
-    }   else {
-        nSubsidy = 20 * COIN;
     }
+    
+    if (nHeight > 425000) { nSubsidy = 500 * COIN; }
 
     int64_t nMoneySupply = chainActive.Tip()->nMoneySupply;
 
@@ -1810,8 +1788,12 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
 
     if (nHeight < 201) {
         ret = blockValue * 0;
-    }   else {
-        ret = blockValue * 0.5;
+    } else {
+        if (nHeight < 425000) {
+            ret = blockValue * 0.5;
+        } else {
+            ret = blockValue * 0.7;
+        }
     }
 
     return ret;
