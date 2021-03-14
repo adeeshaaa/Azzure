@@ -9,13 +9,14 @@ Azzure Core integration/staging repository
 <tr><td>Address letter</td><td>A</td></tr>
 <tr><td>Algo</td><td>Quark</td></tr>
 <tr><td>Masternode collateral</td><td>500000 AZZR</td></tr>
+<tr><td>Masternode collateral V2</td><td>1000000 AZZR</td></tr>
 <tr><td>Difficulty Retargeting</td><td>Every Block</td></tr>
 <tr><td>Block Time</td><td>60 Seconds</td></tr>
 <tr><td>Max Coin Supply</td><td>5000000000 AZZR</td></tr>
 <tr><td>Premine</td><td>5% AZZR</td></tr>
 </table>
 
-### PoS Rewards Breakdown 50% for masternode - 50% for stake
+### PoS Rewards Breakdown 70% for masternode - 30% for stake
 
 <table>
 <th>Phase</th><th>Block Height</th><th>Reward</th>
@@ -39,6 +40,6 @@ Azzure Core integration/staging repository
   <tr><td>Phase 17</td><td>90001-95000</td><td>1700 AZZR</td></tr>
   <tr><td>Phase 18</td><td>95001-100000</td><td>1800 AZZR</td></tr>
   <tr><td>Phase 19</td><td>100001-300000</td><td>1900 AZZR</td></tr>
-  <tr><td>Phase 20</td><td>300001-500000</td><td>2000 AZZR</td></tr>
+  <tr><td>Phase 20</td><td>425000+</td><td>500 AZZR</td></tr>
   
 </table>

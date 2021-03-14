@@ -1491,13 +1491,25 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                 if (nCoinType == ONLY_DENOMINATED) {
                     found = IsDenominatedAmount(pcoin->vout[i].nValue);
                 } else if (nCoinType == ONLY_NOT10000IFMN) {
-                    found = !(fMasterNode && pcoin->vout[i].nValue == Params().MasternodeCollateralLimit() * COIN);
+                    if (GetTime() < 1615788014) {
+                        found = !(fMasterNode && pcoin->vout[i].nValue == Params().MasternodeCollateralLimit() * COIN);
+                    } else {
+                        found = !(fMasterNode && pcoin->vout[i].nValue == Params().MasternodeCollateralLimit_V2() * COIN);
+                    }
                 } else if (nCoinType == ONLY_NONDENOMINATED_NOT10000IFMN) {
                     if (IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
                     found = !IsDenominatedAmount(pcoin->vout[i].nValue);
-                    if (found && fMasterNode) found = pcoin->vout[i].nValue != Params().MasternodeCollateralLimit() * COIN; // do not use Hot MN funds
+                    if (GetTime() < 1615788014) {
+                        if (found && fMasterNode) found = pcoin->vout[i].nValue != Params().MasternodeCollateralLimit() * COIN; // do not use Hot MN funds
+                    } else {
+                        if (found && fMasterNode) found = pcoin->vout[i].nValue != Params().MasternodeCollateralLimit_V2() * COIN; // do not use Hot MN funds
+                    }
                 } else if (nCoinType == ONLY_10000) {
-                    found = pcoin->vout[i].nValue == Params().MasternodeCollateralLimit() * COIN;
+                    if (GetTime() < 1615788014) {
+                        found = pcoin->vout[i].nValue == Params().MasternodeCollateralLimit() * COIN;
+                    } else {
+                        found = pcoin->vout[i].nValue == Params().MasternodeCollateralLimit_V2() * COIN;
+                    }
                 } else {
                     found = true;
                 }

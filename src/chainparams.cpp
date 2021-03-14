@@ -111,6 +111,7 @@ public:
         nMaturity = 20;
         nMasternodeCountDrift = 20;
         nMasternodeCollateralLimit = 500000;
+        nMasternodeCollateralLimit_V2 = 1000000;// As of block 425,000
         nModifierUpdateBlock = 106000;
         nMaxMoneyOut = 5000000000 * COIN;
         const char* pszTimestamp = "Spains deficit will reach 126 billion - CNN";

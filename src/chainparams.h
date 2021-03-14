@@ -80,6 +80,7 @@ public:
     /** The masternode count that we will allow the see-saw reward payments to be off by */
     int MasternodeCountDrift() const { return nMasternodeCountDrift; }
     int MasternodeCollateralLimit() const { return nMasternodeCollateralLimit; }
+    int MasternodeCollateralLimit_V2() const { return nMasternodeCollateralLimit_V2; }
     /** Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated */
     bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
     /** In the future use NetworkIDString() for RPC fields */
@@ -115,6 +116,7 @@ protected:
     int nLastPOWBlock;
     int nMasternodeCountDrift;
     int nMasternodeCollateralLimit;
+    int nMasternodeCollateralLimit_V2;
     int nMaturity;
     int nModifierUpdateBlock;
     CAmount nMaxMoneyOut;
