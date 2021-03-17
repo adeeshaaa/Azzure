@@ -16,6 +16,8 @@
 
 #include <math.h>
 
+using namespace std;
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Standard Global Values
@@ -39,7 +41,7 @@ double VRFup2 = 1.5;
 double VRFup3 = 2;
 double TerminalAverage = 0;
 double TerminalFactor = 10000;
-// double debugTerminalAverage = 0;
+double debugTerminalAverage = 0;
 uint256 newBN = 0;
 uint256 oldBN = 0;
 int64_t VLrate1 = 0;
@@ -48,11 +50,11 @@ int64_t VLrate3 = 0;
 int64_t VLrate4 = 0;
 int64_t VLrate5 = 0;
 int64_t VLRtemp = 0;
-int64_t DSrateNRM = Params().TargetSpacing();
-int64_t DSrateMAX = DSrateNRM * 2;
+int64_t DSrateNRM = 1 * 60;
+int64_t DSrateMAX = 2 * 60;
 int64_t FRrateDWN = DSrateNRM - 15;
 int64_t FRrateFLR = DSrateNRM - 30;
-int64_t FRrateCLNG = DSrateMAX * 3;
+int64_t FRrateCLNG = DSrateMAX * 2;
 int64_t difficultyfactor = 0;
 int64_t AverageDivisor = 5;
 int64_t scanheight = 6;
@@ -67,8 +69,8 @@ uint64_t prvTime = 0;
 uint64_t difTime = 0;
 uint64_t minuteRounds = 0;
 uint64_t difCurve = 0;
-// uint64_t debugMinuteRounds = 0;
-// uint64_t debugDifCurve = 0;
+uint64_t debugminuteRounds = 0;
+uint64_t debugDifCurve = 0;
 bool fDryRun;
 bool fCRVreset;
 const CBlockIndex* pindexPrev = 0;
@@ -76,8 +78,8 @@ const CBlockIndex* BlockVelocityType = 0;
 uint256 bnVelocity = 0;
 uint256 bnOld;
 uint256 bnNew;
-// std::string difType ("");
-// unsigned int retarget = DIFF_VRX; // Default with VRX
+std::string difType ("");
+unsigned int retarget = DIFF_VRX; // Default with VRX
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -87,6 +89,7 @@ uint256 bnNew;
 //
 // These are the depricated and no longer in use retarget solutions
 //
+
 unsigned int DarkGravityWave(const CBlockIndex* pindexLast, const CBlockHeader* pblock)
 {
     /* current difficulty formula, Azzure - DarkGravity v3, written by Evan Duffield - evan@dashpay.io */
@@ -247,11 +250,8 @@ void VRX_BaseEngine(const CBlockIndex* pindexLast, bool fProofOfStake)
            // Log hybrid block type
            //
            // v1.1
-           if(pindexLast->GetBlockTime() > 0) // ON
-           {
-               if(pindexPrev->IsProofOfStake()) { prevPoS ++; }
-               else if(pindexPrev->IsProofOfWork()) { prevPoW ++; }
-           }
+           if(pindexPrev->IsProofOfStake()) { prevPoS ++; }
+		   else if(pindexPrev->IsProofOfWork()) { prevPoW ++; }
 
            // move up per scan round
            scanblocks ++;
@@ -287,7 +287,7 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
     //
     if(prevPoW < prevPoS && !fProofOfStake){if((prevPoS-prevPoW) > 3) TerminalAverage /= 3;}
     else if(prevPoW > prevPoS && fProofOfStake){if((prevPoW-prevPoS) > 3) TerminalAverage /= 3;}
-    if(TerminalAverage < 0.5) TerminalAverage = 0.5; // limit skew to halving
+    if(TerminalAverage < 0.5){TerminalAverage = 0.5;}// limit skew to halving
 
     // Version 1.1 curve-patch
     //
@@ -303,12 +303,11 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
         fCRVreset = false;
 
         // Debug print toggle
-        // if(fProofOfStake) {
-            // difType = "PoS";
-        // } else {
-            // difType = "PoW";
-        // }
-        // if(fDebug) VRXswngdebug();
+        if(fProofOfStake) {
+            difType = "PoS";
+        } else {
+            difType = "PoW";
+        }
 
         // Version 1.2 Extended Curve Run Upgrade
         if(pindexLast->nHeight > 0) {
@@ -348,22 +347,12 @@ void VRX_Dry_Run(const CBlockIndex* pindexLast)
         return; // can't index prevblock
     }
 
-    if (pindexLast->nHeight == 425000) {
-        fDryRun = true;
-        return; // diff reset for mandatory update block
-    }
-
-    // Test Fork
-    // if (nLiveForkToggle != 0) {
-        // Do nothing
-    // }// TODO setup next testing fork
-
     // Standard, non-Dry Run
     fDryRun = false;
     return;
 }
 
-unsigned int VRX_Retarget(const CBlockIndex* pindexLast, const CBlockHeader* pblock)
+unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
     // Set base values
     bnVelocity = (~uint256(0) >> 24);
@@ -376,7 +365,7 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, const CBlockHeader* pbl
     if(fDryRun) { return bnVelocity.GetCompact(); }
 
     // Run VRX threadcurve
-    VRX_ThreadCurve(pindexLast, true);
+    VRX_ThreadCurve(pindexLast, fProofOfStake);
     if (fCRVreset) { return bnVelocity.GetCompact(); }
 
     // Retarget using simulation
@@ -389,9 +378,6 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, const CBlockHeader* pbl
     oldBN = bnOld.GetCompact();
     newBN = bnNew.GetCompact();
 
-    // Debug print toggle
-    // if(fDebug) VRXdebug();
-
     // Return difficulty
     return bnNew.GetCompact();
 }
@@ -403,15 +389,22 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, const CBlockHeader* pbl
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock)
 {
-    /* DarkGravityWave v3 retarget difficulty runs until block 425000 */
+	/* DarkGravityWave v3 retarget difficulty runs until block Params().AzzrNetUpgrade() */
+    if(pindexLast->nHeight > Params().AzzrNetUpgrade())
+    {
+        retarget = DIFF_VRX;
+    } else {
+		retarget = DIFF_DGW;
+	}
+
     // Retarget using DGW-v3
-    if (pindexLast->nHeight < 425000)
+    if (retarget == DIFF_DGW)
     {
         return DarkGravityWave(pindexLast, pblock);
     }
 
     // Retarget using Terminal-Velocity
-    return VRX_Retarget(pindexLast, pblock);
+    return VRX_Retarget(pindexLast, true);
 }
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits)

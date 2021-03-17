@@ -111,7 +111,7 @@ public:
         nMaturity = 20;
         nMasternodeCountDrift = 20;
         nMasternodeCollateralLimit = 500000;
-        nMasternodeCollateralLimit_V2 = 1000000;// As of block 425,000
+		nMasternodeCollateralLimit_V2 = 1000000;
         nModifierUpdateBlock = 106000;
         nMaxMoneyOut = 5000000000 * COIN;
         const char* pszTimestamp = "Spains deficit will reach 126 billion - CNN";
@@ -158,6 +158,9 @@ public:
         strSporkKey = "04bd8d3e45f1c7fc1d34ce4c27356d3a5f43e1dfaf061e2152bbb68279741ab7197b4e74a81bea32ccd5f3b3f414a0cfa34a9c8ec747709897bb1fb8aea51fdcc0";
         strObfuscationPoolDummyAddress = "NQTuqzbn3aVbfQvFEFAHJFHoNB68JsVjr7";
         nStartMasternodePayments = 1578497190;
+		nStartMasternodePayments_V2 = 1616241600;// Saturday, March 20, 2021 12:00:00 PM
+		
+		nAzzrNetUpgrade = 430000;
 
     }
 
@@ -195,6 +198,7 @@ public:
         nMaturity = 15;
         nMasternodeCountDrift = 4;
         nMasternodeCollateralLimit = 10000;
+		nMasternodeCollateralLimit_V2 = 100000;
         nModifierUpdateBlock = 500;
         nMaxMoneyOut = 43199500 * COIN;
 
@@ -242,6 +246,8 @@ public:
         strSporkKey = "04f25f195facbb086a0ad67a94bbe4e8cc3e805224ae595fea0b0ac0ffe6199e1559dfc536369b13839271060a58799255d9e3d928a085333093685ffc4f73c02f";
         strObfuscationPoolDummyAddress = "xxVKdbxVogrXrPLMo2qEEyCm1GRv2KZCLy";
         nStartMasternodePayments = 1524873600; //Fri, 09 Jan 2015 21:05:58 GMT
+		nStartMasternodePayments_V2 = 1616241600;// Saturday, March 20, 2021 12:00:00 PM
+		nAzzrNetUpgrade = 1000;
     }
     const Checkpoints::CCheckpointData& Checkpoints() const
     {
@@ -291,6 +297,8 @@ public:
         fRequireStandard = false;
         fMineBlocksOnDemand = true;
         fTestnetToBeDeprecatedFieldRPC = false;
+		nStartMasternodePayments_V2 = 1616241600;// Saturday, March 20, 2021 12:00:00 PM
+		nAzzrNetUpgrade = 10;
     }
     const Checkpoints::CCheckpointData& Checkpoints() const
     {

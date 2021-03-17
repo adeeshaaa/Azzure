@@ -1,3 +1,4 @@
+
 #include "activemasternode.h"
 #include "addrman.h"
 #include "masternode.h"
@@ -467,15 +468,17 @@ vector<COutput> CActiveMasternode::SelectCoinsMasternode()
 
     // Filter
     BOOST_FOREACH (const COutput& out, vCoins) {
-        if (GetTime() < 1615975200) {
-            if (out.tx->vout[out.i].nValue == Params().MasternodeCollateralLimit() * COIN) { //exactly
-                filteredCoins.push_back(out);
-            }
-        } else {
-            if (out.tx->vout[out.i].nValue == Params().MasternodeCollateralLimit_V2() * COIN) { //exactly
-                filteredCoins.push_back(out);
-            }
-        }
+		if(chainActive.Tip()->nTime > Params().StartMasternodePayments_V2()) {
+			//
+			if (out.tx->vout[out.i].nValue == Params().MasternodeCollateralLimit_V2() * COIN) { //exactly
+				filteredCoins.push_back(out);
+			}
+		} else {
+			//
+			if (out.tx->vout[out.i].nValue == Params().MasternodeCollateralLimit() * COIN) { //exactly
+				filteredCoins.push_back(out);
+			}
+		}
     }
     return filteredCoins;
 }
