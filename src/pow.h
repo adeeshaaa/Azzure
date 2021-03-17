@@ -14,22 +14,17 @@ class uint256;
 class arith_uint256;
 
 // Define difficulty retarget algorithms
-//
-// TODO: Update this section to properly reflect changes made in pow.cpp
-//
 enum DiffMode {
     DIFF_DEFAULT = 0, // Default to invalid 0
-    DIFF_BTC = 1,     // Retarget every x blocks (Bitcoin style)
-    DIFF_DGW = 2,     // Retarget using DarkGravityWave v3
-    DIFF_VRX = 3,     // Retarget using Terminal-Velocity-RateX
+    DIFF_DGW = 1,     // Retarget using Dark Gravity Wave v3
+    DIFF_VRX  = 2,     // Retarget using Kimoto Gravity Well
 };
 
+unsigned int DarkGravityWave(const CBlockIndex* pindexLast, const CBlockHeader* pblock);
 void VRX_BaseEngine(const CBlockIndex* pindexLast, bool fProofOfStake);
+void VRX_Simulate_Retarget();
 void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake);
 void VRX_Dry_Run(const CBlockIndex* pindexLast);
-void VRX_Simulate_Retarget();
-
-unsigned int DarkGravityWave(const CBlockIndex* pindexLast, const CBlockHeader* pblock);
 unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake);
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock);
 

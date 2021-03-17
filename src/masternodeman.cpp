@@ -988,10 +988,12 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
 
         CValidationState state;
         CMutableTransaction tx = CMutableTransaction();
-        CTxOut vout = CTxOut(((Params().MasternodeCollateralLimit() - 0.01)) * COIN, obfuScationPool.collateralPubKey);
-        if (GetTime() > 1615975200) {
-            CTxOut(((Params().MasternodeCollateralLimit_V2() - 0.01)) * COIN, obfuScationPool.collateralPubKey);
-        }
+        CTxOut vout;
+		if (chainActive.Tip()->nTime > Params().StartMasternodePayments_V2()) {
+			vout = CTxOut(((Params().MasternodeCollateralLimit_V2() - 0.01)) * COIN, obfuScationPool.collateralPubKey);
+		} else {
+			vout = CTxOut(((Params().MasternodeCollateralLimit() - 0.01)) * COIN, obfuScationPool.collateralPubKey);
+		}
         tx.vin.push_back(vin);
         tx.vout.push_back(vout);
 

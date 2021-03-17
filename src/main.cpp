@@ -1760,11 +1760,11 @@ int64_t GetBlockValue(int nHeight)
         nSubsidy = 2000 * COIN; // + 20000000
     }   else if (nHeight <= 300000 && nHeight > 100000) {
         nSubsidy = 1500 * COIN;
-    }   else if (nHeight <= 425000 && nHeight > 300000) {
+    }   else if (nHeight > 300000) {
         nSubsidy = 1000 * COIN;
+    }	else if (nHeight > Params().AzzrNetUpgrade()) {
+        nSubsidy = 500 * COIN;
     }
-    
-    if (nHeight > 425000) { nSubsidy = 500 * COIN; }
 
     int64_t nMoneySupply = chainActive.Tip()->nMoneySupply;
 
@@ -1788,12 +1788,11 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
 
     if (nHeight < 201) {
         ret = blockValue * 0;
-    } else {
-        if (nHeight < 425000) {
-            ret = blockValue * 0.5;
-        } else {
-            ret = blockValue * 0.7;
-        }
+    }   else {
+        ret = blockValue * 0.5;
+		if (nHeight > Params().AzzrNetUpgrade()) {
+			ret = blockValue * 0.7;
+		}
     }
 
     return ret;
@@ -5703,8 +5702,10 @@ int ActiveProtocol()
     // SPORK_15 is used for 70910. Nodes < 70910 don't see it and still get their protocol version via SPORK_14 and their
     // own ModifierUpgradeBlock()
 
-    if (IsSporkActive(SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2))
-            return MIN_PEER_PROTO_VERSION_AFTER_ENFORCEMENT;
+    //if (IsSporkActive(SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2))
+	if (chainActive.Tip()->nTime > Params().StartMasternodePayments_V2()) {
+		return MIN_PEER_PROTO_VERSION_AFTER_ENFORCEMENT;
+	}
 
     return MIN_PEER_PROTO_VERSION_BEFORE_ENFORCEMENT;
 }

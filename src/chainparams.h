@@ -80,7 +80,7 @@ public:
     /** The masternode count that we will allow the see-saw reward payments to be off by */
     int MasternodeCountDrift() const { return nMasternodeCountDrift; }
     int MasternodeCollateralLimit() const { return nMasternodeCollateralLimit; }
-    int MasternodeCollateralLimit_V2() const { return nMasternodeCollateralLimit_V2; }
+	int MasternodeCollateralLimit_V2() const { return nMasternodeCollateralLimit_V2; }
     /** Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated */
     bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
     /** In the future use NetworkIDString() for RPC fields */
@@ -96,6 +96,10 @@ public:
     std::string ObfuscationPoolDummyAddress() const { return strObfuscationPoolDummyAddress; }
     int64_t StartMasternodePayments() const { return nStartMasternodePayments; }
     CBaseChainParams::Network NetworkID() const { return networkID; }
+	/** Network Upgrade, changes MN/POS from 50/50 to 70/30 respectively, rewards are dropped to -
+		 500 AZZR per block and VRX difficulty replaces the previous DGW implementation */
+	int AzzrNetUpgrade() const { return nAzzrNetUpgrade; }
+	int64_t StartMasternodePayments_V2() const { return nStartMasternodePayments_V2; }
 
 protected:
     CChainParams() {}
@@ -116,7 +120,7 @@ protected:
     int nLastPOWBlock;
     int nMasternodeCountDrift;
     int nMasternodeCollateralLimit;
-    int nMasternodeCollateralLimit_V2;
+	int nMasternodeCollateralLimit_V2;
     int nMaturity;
     int nModifierUpdateBlock;
     CAmount nMaxMoneyOut;
@@ -140,6 +144,8 @@ protected:
     std::string strSporkKey;
     std::string strObfuscationPoolDummyAddress;
     int64_t nStartMasternodePayments;
+	int64_t nStartMasternodePayments_V2;
+	int nAzzrNetUpgrade;
 };
 
 /** 
